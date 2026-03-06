@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>2026 摸彩對獎小幫手</title>
+  <style>
+    :root {
+      --red: #b71c1c;
+      --red2: #d84315;
+      --gold: #d4a017;
+      --bg: #fff8ef;
+      --card: #ffffff;
+      --text: #3b2a2a;
+      --green: #2e7d32;
+      --muted: #7a6666;
+      --shadow: 0 12px 30px rgba(139, 0, 0, 0.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: "Microsoft JhengHei", "PingFang TC", sans-serif;
+      background: linear-gradient(180deg, #fff8ef 0%, #fff3f3 100%);
+      color: var(--text);
+    }
+    .wrap { max-width: 980px; margin: 0 auto; padding: 24px 16px 40px; }
+    .banner {
+      background: linear-gradient(135deg, var(--red), var(--red2));
+      color: #fff;
+      border-radius: 24px;
+      padding: 28px 24px;
+      box-shadow: var(--shadow);
+      position: relative;
+      overflow: hidden;
+    }
+    .banner::before, .banner::after {
+      content: "✦";
+      position: absolute;
+      font-size: 84px;
+      color: rgba(255,215,0,.15);
+    }
+    .banner::before { top: -10px; right: 20px; }
+    .banner::after { bottom: -24px; left: 18px; }
+    h1 { margin: 0 0 8px; font-size: 32px; }
+    .subtitle { margin: 0; line-height: 1.7; }
+    .grid {
+      display: grid;
+      grid-template-columns: 1.1fr .9fr;
+      gap: 20px;
+      margin-top: 22px;
+    }
+    .card {
+      background: var(--card);
+      border-radius: 22px;
+      padding: 20px;
+      box-shadow: var(--shadow);
+      border: 2px solid #ffe2b8;
+    }
+    .card h2 { margin: 0 0 12px; color: var(--red); }
+    label { display: block; margin-bottom: 8px; font-weight: 700; }
+    input, textarea {
+      width: 100%; border: 2px solid #f0d8ba; border-radius: 14px;
+      padding: 14px; font-size: 16px; background: #fffdfb; outline: none;
+    }
+    input:focus, textarea:focus {
+      border-color: var(--gold); box-shadow: 0 0 0 4px rgba(212,160,23,.15);
+    }
+    textarea { min-height: 260px; resize: vertical; line-height: 1.5; }
+    .actions { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+    button {
+      border: 0; border-radius: 999px; padding: 12px 18px; cursor: pointer;
+      font-size: 15px; font-weight: 700;
+    }
+    .primary { background: linear-gradient(135deg, var(--red), var(--red2)); color: #fff; }
+    .secondary { background: #fff3d6; color: #8a5a00; }
+    .result {
+      margin-top: 12px; border-radius: 18px; padding: 18px; min-height: 92px;
+      border: 2px dashed #f3d4a2; background: #fffaf2; display: flex;
+      align-items: center; justify-content: center; text-align: center;
+      font-size: 18px; font-weight: 700; line-height: 1.6;
+    }
+    .hit { background: #fff4e5; border-color: #ffb74d; color: #a85b00; }
+    .miss { background: #f7fbf7; border-color: #9ccc65; color: var(--green); }
+    .warn { background: #fff8e1; border-color: #ffcc80; color: #8d5b00; }
+    .muted { color: var(--muted); font-size: 14px; line-height: 1.7; }
+    .pill-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 12px; }
+    .pill {
+      background: #fff5e8; color: #9a5d00; border: 1px solid #ffd59e;
+      border-radius: 999px; padding: 6px 12px; font-size: 13px;
+    }
+    .small-title { margin: 18px 0 8px; font-weight: 800; color: var(--red); }
+    .history {
+      margin-top: 10px; background: #fffdf7; border: 1px solid #f2e2c8;
+      border-radius: 12px; padding: 10px 12px; max-height: 180px; overflow: auto;
+      font-size: 14px; line-height: 1.7;
+    }
+    .footer { text-align: center; margin-top: 18px; color: #8a7474; font-size: 13px; }
+    @media (max-width: 768px) { .grid { grid-template-columns: 1fr; } h1 { font-size: 28px; } }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <section class="banner">
+      <h1>🎊 2026 摸彩對獎小幫手</h1>
+      <p class="subtitle">已預先載入中獎號碼。打開網頁即可使用，輸入號碼就能立即查看是否中獎。這版走的是「不用學新技術，直接開工」路線。</p>
+    </section>
+
+    <section class="grid">
+      <div class="card">
+        <h2>中獎號碼資料</h2>
+        <label for="winningNumbers">目前載入的中獎號碼</label>
+        <textarea id="winningNumbers"></textarea>
+        <div class="actions">
+          <button class="primary" id="reloadBtn">重新載入原始名單</button>
+          <button class="secondary" id="copyBtn">複製全部號碼</button>
+        </div>
+        <p class="muted">若你之後想自行修正個別號碼，也可以直接在這個欄位編輯後再按 Enter 查詢；系統會以目前欄位中的清單為準。</p>
+        <div class="pill-row">
+          <span class="pill" id="totalCount">中獎號碼：0 筆</span>
+          <span class="pill">可直接離線使用</span>
+          <span class="pill">手機、電腦皆可開啟</span>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>立即對獎</h2>
+        <label for="searchNumber">輸入要查詢的號碼</label>
+        <input id="searchNumber" type="text" placeholder="例如：004107" />
+        <div class="actions">
+          <button class="primary" id="checkBtn">立即查看</button>
+          <button class="secondary" id="clearBtn">清空輸入</button>
+        </div>
+        <div class="result" id="resultBox">請輸入號碼開始對獎。</div>
+        <div class="small-title">最近查詢紀錄</div>
+        <div class="history" id="historyBox">尚未查詢。</div>
+        <p class="muted">比對方式為完整比對。系統會自動忽略空白，並統一轉成大寫後比對。</p>
+      </div>
+    </section>
+
+    <p class="footer">🧧 小提醒：若原始圖片為手寫或拍攝角度不正，仍建議人工複核一次重點號碼，畢竟中獎時最怕不是沒中，是看錯。</p>
+  </div>
+
+  <script>
+    const ORIGINAL_NUMBERS = [
+      "004107","014291","008081","012756","016967",
+      "002788","015586","009217","007446","016782",
+      "015517","003775","009608","008176","014757",
+      "012200","010673","011148","009196","009210",
+      "009782","007166","011727",
+      "003620","005044","002491",
+      "006275","015818","011649",
+      "006313","003932","010754","004348","004995",
+      "002615","014762","011866","014713","006159",
+      "010088","013183","005137","004151","005672",
+      "011757","015515","013273","005972","004291","006198","016019",
+      "003834","014857","006016","010614","008376","015646","008387","009452","007087","014604",
+      "005999","010007","003695","008252","003606","015538","009860","002685","014478","003291",
+      "013155","003819","004176","013218","002327","009448","013426","015016","013621","008479",
+      "010462","016169","010143","008115","016343","015460","012915","009445","005769","006813",
+      "012437","016290","009865","010019","005720","012284","014546","005349","006941","017015"
+    ];
+
+    const winningNumbersEl = document.getElementById('winningNumbers');
+    const searchNumberEl = document.getElementById('searchNumber');
+    const resultBoxEl = document.getElementById('resultBox');
+    const totalCountEl = document.getElementById('totalCount');
+    const historyBoxEl = document.getElementById('historyBox');
+    const historyItems = [];
+
+    function normalize(value) {
+      return String(value).replace(/\s+/g, '').trim().toUpperCase();
+    }
+
+    function parseNumbers(rawText) {
+      return [...new Set(rawText.split(/\r?\n/).map(normalize).filter(Boolean))];
+    }
+
+    function getCurrentNumbers() {
+      return parseNumbers(winningNumbersEl.value);
+    }
+
+    function updateCount() {
+      totalCountEl.textContent = `中獎號碼：${getCurrentNumbers().length} 筆`;
+    }
+
+    function renderOriginal() {
+      winningNumbersEl.value = ORIGINAL_NUMBERS.join('\n');
+      updateCount();
+    }
+
+    function pushHistory(number, hit) {
+      const stamp = new Date().toLocaleTimeString('zh-TW', { hour12: false });
+      historyItems.unshift(`${stamp}｜${number}｜${hit ? '中獎' : '未中獎'}`);
+      historyBoxEl.innerHTML = historyItems.slice(0, 12).join('<br>');
+    }
+
+    function checkNumber() {
+      const inputValue = normalize(searchNumberEl.value);
+      const numbers = getCurrentNumbers();
+
+      if (!numbers.length) {
+        resultBoxEl.className = 'result warn';
+        resultBoxEl.textContent = '目前沒有中獎號碼資料。';
+        return;
+      }
+      if (!inputValue) {
+        resultBoxEl.className = 'result warn';
+        resultBoxEl.textContent = '請先輸入要查詢的號碼。';
+        return;
+      }
+
+      const hit = numbers.includes(inputValue);
+      if (hit) {
+        resultBoxEl.className = 'result hit';
+        resultBoxEl.innerHTML = `🎉 恭喜中獎！<br>號碼 <strong>${inputValue}</strong> 在中獎名單中。`;
+      } else {
+        resultBoxEl.className = 'result miss';
+        resultBoxEl.innerHTML = `🙂 很可惜，這次未中獎。<br>號碼 <strong>${inputValue}</strong> 不在中獎名單中。`;
+      }
+      pushHistory(inputValue, hit);
+    }
+
+    document.getElementById('reloadBtn').addEventListener('click', () => {
+      renderOriginal();
+      resultBoxEl.className = 'result warn';
+      resultBoxEl.textContent = '已重新載入原始中獎名單。';
+    });
+
+    document.getElementById('copyBtn').addEventListener('click', async () => {
+      try {
+        await navigator.clipboard.writeText(winningNumbersEl.value);
+        resultBoxEl.className = 'result warn';
+        resultBoxEl.textContent = '已複製全部中獎號碼。';
+      } catch {
+        resultBoxEl.className = 'result warn';
+        resultBoxEl.textContent = '複製失敗，可能是瀏覽器限制，請直接手動複製。';
+      }
+    });
+
+    document.getElementById('checkBtn').addEventListener('click', checkNumber);
+    document.getElementById('clearBtn').addEventListener('click', () => {
+      searchNumberEl.value = '';
+      resultBoxEl.className = 'result';
+      resultBoxEl.textContent = '請輸入號碼開始對獎。';
+      searchNumberEl.focus();
+    });
+
+    searchNumberEl.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter') {
+        e.preventDefault();
+        checkNumber();
+      }
+    });
+
+    winningNumbersEl.addEventListener('input', updateCount);
+
+    renderOriginal();
+  </script>
+</body>
+</html>
